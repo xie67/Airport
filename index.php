@@ -12,26 +12,21 @@
     Transfer method:
 	<input type="radio" name="transfer" value="Wired" > Wired
   	<input type="radio" name="transfer" value="Wireless"> Wireless <br>
-  	Year-Month-Day-Hour (2017-02-01-13:00:00):
-	<input type="text" name="year"> 
-  	<input type="text" name="month"> 
-  	<input type="text" name="day"> 
-  	<input type="text" name="hour"> 
-	  
-    <input type="submit" value="Submit">
+  	Year-Month-Day (2017-02-01):
+	<input type="text" name="date"> 
+    <input type="submit" name="submit">
 </form>
 
-</body>
-</html>
+
 
 <?php
+include '/src/connection.php';
+
 $position = $_POST['position'];
 $transfer = $_POST['transfer'];
-$year = $_POST['year'];
-$month = $_POST['month'];
-$day = $_POST['day'];
-$hour = $_POST['hour'];
+$date = $_POST['date'];
 
+$source_id = NULL;
 if($position == "Inside concrete"){
 	if($transfer == "Wired") $source_id = 1;
 	else $source_id = 2;
@@ -39,9 +34,33 @@ if($position == "Inside concrete"){
 	if($transfer == "Wired") $source_id = 3;
 	else $source_id = 4;
 }
-$time = $year."-".$month."-".$day." ".$hour;
-$datetime = date('Y-M-D h:i:s',$time);
 
-echo $source_id;
-echo $datetime;
+
+
+$startDate = date('Y-m-d',strtotime($date));
+$endDate = date('Y-m-d', strtotime($date.' +1 day'));
+
+if($_POST['submit']){
+	$sql = "select `temperature`,`datetime`,`source_name`,`location_name` from location join 
+		(select `temperature`,`datetime`,`source_name`,`location_id` from temperature join source 
+		on temperature.source_id = source.id 
+		where `datetime` >= '$startDate' and `datetime` < '$endDate' and `source_id` = '$source_id') as tmp on tmp.location_id = location.id";
+	$result = mysqli_query($conn, $sql);
+	echo "<table border = 1>";
+	echo "<tr><td>temperature</td><td>datetime</td><td>source</td><td>location</td></tr>";
+	if ($result->num_rows == 0) {
+		echo "0 results";
+	}
+	while($row = mysqli_fetch_assoc($result)){
+		echo "<tr>";
+		echo "<td>".$row["temperature"]."</td>";
+		echo "<td>".$row["datetime"]."</td>";
+		echo "<td>".$row["source_name"]."</td>";
+		echo "<td>".$row["location_name"]."</td>";
+	}
+}
+
 ?>
+
+</body>
+</html>

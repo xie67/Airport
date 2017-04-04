@@ -1,43 +1,24 @@
-<html>
-<head>
-	<h1>WeatherData table</h1>
-</head>
-<body>
-
-<form>
-	<form method="post">
-		<input type="submit" name="submit_Export" value="EXPORT TO EXCEL"/>
-</form>
-
-
-
-
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$DBname = "weather";
-$conn = mysqli_connect($servername,$username,$password,$DBname);
+include 'connection.php';
 
-if(!$conn){
-	die("Connection failed: " . mysqli_connect_error());
-}
+$startDate = '2017-02-04';
+$endDate = '2017-02-05';
+$source_id = 3;
 
-$query = "SELECT * FROM WeatherData ORDER BY id";
-$result = mysqli_query($conn,$query);
-echo "<table border = 1>";
-echo "All data in the database: ";
-echo "<tr><td>id</td><td>date</td><td>temperature</td><td>location</td></tr>";
-while ($row=mysqli_fetch_array($result)) {
-	echo "<tr>";
-	echo "<td>".$row["id"]."</td>";
-	echo "<td>".$row["date"]."</td>";
-	echo "<td>".$row["temperature"]."</td>";
-	echo "<td>".$row["loaction"]."</td>";
-	echo "</tr>";
-}
+$sql = "select `temperature`,`datetime`,`source_name`,`location_name` from location join 
+	(select `temperature`,`datetime`,`source_name`,`location_id` from temperature join source 
+	on temperature.source_id = source.id 
+	where `datetime` >= '$startDate' and `datetime` < '$endDate' and `source_id` = '$source_id') as tmp on tmp.location_id = location.id";
+$result = mysqli_query($conn, $sql);
+
+while($row = mysqli_fetch_assoc($result)){
+		echo $row["temperature"]."\t";
+		echo $row["datetime"]."\t";
+		echo $row["source_name"]."\t";
+		echo $row["location_name"]."\n";
+	}
+#close connection
+$conn->close();
 ?>
 
-</body>
-</html>
 

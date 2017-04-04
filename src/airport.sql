@@ -1,3 +1,7 @@
+create database airport;
+
+use airport;
+
 DROP TABLE IF EXISTS `temperature`;
 CREATE TABLE `temperature` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
@@ -22,21 +26,7 @@ CREATE TABLE `location` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*!40101 SET character_set_client = @saved_cs_client */;
-LOAD DATA LOCAL INFILE "/vagrant/db/csv/Indicator.csv"
-INTO TABLE indicator
-FIELDS TERMINATED BY ',' 
-ENCLOSED BY '"' 
-LINES TERMINATED BY '\r\n'
-(source);
-LOAD DATA LOCAL INFILE "/vagrant/db/csv/Temperature.csv"
-INTO TABLE temperature
-FIELDS TERMINATED BY ',' 
-ENCLOSED BY '"' 
-LINES TERMINATED BY '\r\n'
-(indicator_id,temperature,datetime,location);
-select * from temperature join indicator on indicator.id = indicator_id
-where source = 'ardunio_inside' and datetime > '2017-01-12 15:00:00';
-
-
-INSERT INTO source (source_name) VALUES ('inside concrete wired');INSERT INTO source (source_name) VALUES ('inside concrete wireless');
+select temperature,datetime,source_name,location_name from location join
+(select temperature,datetime,source_name,location_id from temperature join source on temperature.source_id = source.id
+where datetime >= "2017-02-04" and datetime < "2017-02-05" and source_id = 3) 
+as tmp on tmp.location_id = location.id;

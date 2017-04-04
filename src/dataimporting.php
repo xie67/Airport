@@ -18,7 +18,7 @@ if(count($filenames) > 0){
 	$processingFilename = $processingDir . $filename;
 	$processedFilename = $proessedDir . $filename;
 
-	// rename($uploadedFilename, $processingFilename);
+	rename($uploadedFilename, $processingFilename);
 
 	// determine which data source it is
 	$datasource = substr($filename, 0, strpos($filename, '.'));
@@ -57,6 +57,7 @@ while(($line = fgets($fileHandle)) !== false){
         } 
     }
 }
+rename($processingFilename, $processedFilename);
 
 #close connection
 $conn->close();
